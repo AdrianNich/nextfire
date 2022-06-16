@@ -66,9 +66,17 @@ function PostManager() {
 }
 
 function PostForm({ defaultValues, postRef, preview }) {
-  const { register, handleSubmit, reset, watch, errors, formState } = useForm({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+    formState,
+  } = useForm({
     defaultValues,
     mode: 'onChange',
+    criteriaMode: 'all',
   })
   const { isValid, isDirty } = formState
 
@@ -95,14 +103,25 @@ function PostForm({ defaultValues, postRef, preview }) {
         <textarea
           name="content"
           {...register('content', {
-            maxLength: { value: 20000, message: 'content is too long' },
+            required: 'Content is required',
+            pattern: {
+              value: 20,
+              message: 'content is too long',
+            },
+            maxLength: { value: 20, message: 'content is too long' },
             minLength: { value: 10, message: 'content is too short' },
-            required: { value: true, message: 'content is required' },
           })}
         ></textarea>
-        {errors.content && (
-          <p className="text-danger">{errors.content.message}</p>
-        )}
+        <ErrorMessage
+          errors={errors}
+          name="content"
+          render={({ messages }) =>
+            messages &&
+            Object.entries(messages).map(([type, message]) => (
+              <p key={type}>{message}</p>
+            ))
+          }
+        />
         <fieldset>
           <input
             className={styles.checkbox}
