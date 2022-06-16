@@ -10,6 +10,7 @@ import AuthCheck from '../../components/AuthCheck'
 import { firestore, auth, serverTimestamp } from '../../lib/firebase'
 import styles from '../../styles/Admin.module.css'
 import { ErrorMessage } from '@hookform/error-message'
+import ImageUploader from '../../components/ImageUploader'
 
 export default function AdminPostEdit({}) {
   return (
@@ -100,16 +101,17 @@ function PostForm({ defaultValues, postRef, preview }) {
         </div>
       )}
       <div className={preview ? styles.hidden : styles.controls}>
+        <ImageUploader />
+
         <textarea
           name="content"
           {...register('content', {
             required: 'Content is required',
             pattern: {
-              value: 20,
-              message: 'content is too long',
+              value: 20000,
+              message: 'Content is too long',
             },
-            maxLength: { value: 20, message: 'content is too long' },
-            minLength: { value: 10, message: 'content is too short' },
+            minLength: { value: 10, message: 'Content is too short' },
           })}
         ></textarea>
         <ErrorMessage
@@ -118,7 +120,9 @@ function PostForm({ defaultValues, postRef, preview }) {
           render={({ messages }) =>
             messages &&
             Object.entries(messages).map(([type, message]) => (
-              <p key={type}>{message}</p>
+              <p key={type}>
+                <b>{message}</b>
+              </p>
             ))
           }
         />
