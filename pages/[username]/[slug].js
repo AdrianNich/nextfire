@@ -3,6 +3,11 @@ import PostContent from '../../components/PostContent'
 import { firestore, getUserWithUsername, postToJSON } from '../../lib/firebase'
 import { useDocumentData } from 'react-firebase-hooks/firestore'
 import Metatags from '../../components/Metatags'
+import AuthCheck from '../../components/AuthCheck'
+import HeartButton from '../../components/HeartButton'
+import Link from 'next/link'
+import { UserContext } from '../../lib/context'
+import { useContext } from 'react'
 
 export async function getStaticProps({ params }) {
   const { username, slug } = params
@@ -14,7 +19,7 @@ export async function getStaticProps({ params }) {
     post = postToJSON(await postRef.get())
     path = postRef.path
   }
-  return { props: { post, path }, revalidate: 5000 }
+  return { props: { post, path }, revalidate: 100 }
 }
 
 export async function getStaticPaths() {
@@ -40,17 +45,27 @@ export default function Post(props) {
 
   return (
     <>
-      <main className={styles.container}></main>
-      <Metatags title="user profile" />
+      <main className={styles.container}>
+        <Metatags title={post.title} description={post.title} />
 
-      <section>
-        <PostContent post={post} />
-      </section>
-      <aside className="card">
-        <p>
-          <strong>{post.heartCount || 0} 🤍</strong>
-        </p>
-      </aside>
+        <section>
+          <PostContent post={post} />
+        </section>
+        <aside className="card">
+          <p>
+            <strong>{post.heartCount || 0} 🤍</strong>
+          </p>
+          <AuthCheck
+            fallback={
+              <Link href="/enter">
+                <button>💗 Sign Up</button>
+              </Link>
+            }
+          >
+            <HeartButton postRef={postRef} />
+          </AuthCheck>
+        </aside>
+      </main>
     </>
   )
 }
